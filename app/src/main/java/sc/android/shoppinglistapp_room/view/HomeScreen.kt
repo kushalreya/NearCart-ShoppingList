@@ -1,6 +1,9 @@
 package sc.android.shoppinglistapp_room.view
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,6 +14,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ShoppingCartCheckout
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -20,12 +27,24 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
+import sc.android.shoppinglistapp_room.model.ShoppingItem
 import sc.android.shoppinglistapp_room.navigation.Screens
 import sc.android.shoppinglistapp_room.ui.theme.ShoppingListApp_RoomTheme
 import sc.android.shoppinglistapp_room.ui.theme.ThemeMode
@@ -78,20 +97,126 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                item{
-                    Button(
-                        onClick = {
-                            scope.launch{
-                                snackBarHostState.showSnackbar("Item has been deleted")
-                            }
-                        }
-                    ){
-                        Text(
-                            "Item"
-                        )
-                    }
+                items(15){
+                    ShoppingItemView(
+                        ShoppingItem(
+                            0L,
+                            "Eggs",
+                            "30"
+                        ),
+                        isDark = isDark,
+                        {}
+                    )
                 }
+
             }
+        }
+    }
+
+}
+
+@Composable
+fun ShoppingItemView (
+    item : ShoppingItem,
+    isDark: Boolean,
+    onClick : () -> Unit
+){
+
+    val haptic = LocalHapticFeedback.current
+
+    var checked by remember { mutableStateOf(false) }
+
+    val containerColor = if (checked) {
+        if (isDark) Color.Gray else Color.LightGray
+    } else {
+        MaterialTheme.colorScheme.primaryContainer
+    }
+
+    val textColor = if (checked) {
+        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+    } else {
+        MaterialTheme.colorScheme.onPrimary
+    }
+
+    val strikeColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 18.dp)
+            .clickable{ onClick() }
+            .padding(top = 12.dp)
+            .drawWithContent {
+                drawContent()
+                if (checked) {
+                    val strokeWidth = 2.dp.toPx()
+                    drawLine(
+                        color = strikeColor,
+                        start = Offset(0f, size.height / 2),
+                        end = Offset(size.width, size.height / 2),
+                        strokeWidth = strokeWidth,
+                        cap = StrokeCap.Round
+                    )
+                }
+            },
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor,
+            contentColor = textColor
+        )
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .padding(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            Checkbox(
+                checked = checked,
+                onCheckedChange = {
+                    checked = it
+
+                    haptic.performHapticFeedback(
+                        HapticFeedbackType.TextHandleMove
+                    )
+                },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = MaterialTheme.colorScheme.primary,
+                    checkmarkColor = MaterialTheme.colorScheme.background
+                )
+            )
+
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    "Name:",
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = item.name
+                )
+            }
+
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    "Quantity:",
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = item.quantity
+                )
+            }
+
         }
     }
 
