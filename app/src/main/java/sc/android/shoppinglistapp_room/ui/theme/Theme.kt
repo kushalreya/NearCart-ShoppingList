@@ -1,6 +1,8 @@
 package sc.android.shoppinglistapp_room.ui.theme
 
 import android.os.Build
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -85,31 +87,31 @@ private val DarkColors = darkColorScheme(
 // --------------------
 @Composable
 fun ShoppingListApp_RoomTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true, // Android 12+
+    darkTheme: Boolean,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
+    Crossfade(
+        targetState = darkTheme,
+        animationSpec = tween(700)
+    ) { isDark ->
 
-        // 🎨 Dynamic color (Android 12+)
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context)
-            else dynamicLightColorScheme(context)
+        val colorScheme = when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val context = LocalContext.current
+                if (isDark) dynamicDarkColorScheme(context)
+                else dynamicLightColorScheme(context)
+            }
+            isDark -> DarkColors
+            else -> LightColors
         }
 
-        // 🌙 Dark theme
-        darkTheme -> DarkColors
-
-        // ☀️ Light theme
-        else -> LightColors
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AppTypography,
+            content = content
+        )
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography, // make sure you have Typography.kt
-        content = content
-    )
 }
 
 @Composable

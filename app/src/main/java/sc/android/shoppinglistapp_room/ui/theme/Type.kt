@@ -17,21 +17,13 @@ val Nunito = FontFamily(
 )
 
 // --------------------
-// Pacifico Font Family
-// --------------------
-val Pacifico = FontFamily(
-    Font(R.font.pacifico_regular, FontWeight.Normal)
-)
-
-
-// --------------------
 // Typography
 // --------------------
 val AppTypography = Typography(
 
     // Headings (Pacifico for branding)
     displayLarge = TextStyle(
-        fontFamily = Pacifico,
+        fontFamily = Nunito,
         fontWeight = FontWeight.Normal,
         fontSize = 36.sp,
         lineHeight = 40.sp,
@@ -39,7 +31,7 @@ val AppTypography = Typography(
     ),
 
     displayMedium = TextStyle(
-        fontFamily = Pacifico,
+        fontFamily = Nunito,
         fontWeight = FontWeight.Normal,
         fontSize = 30.sp
     ),

@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 // LIGHT THEME
 // --------------------
 val GreenPrimary = Color(0xFF4CAF50)
-val GreenOnPrimary = Color(0xFFFFFFFF)
+val GreenOnPrimary = Color(0xFF020202)
 val GreenPrimaryContainer = Color(0xFFC8E6C9)
 val GreenOnPrimaryContainer = Color(0xFF1B5E20)
 
@@ -27,8 +27,8 @@ val LightOnSurface = Color(0xFF1C1C1C)
 // --------------------
 // DARK THEME
 // --------------------
-val GreenPrimaryDark = Color(0xFF81C784)
-val GreenOnPrimaryDark = Color(0xFF003300)
+val GreenPrimaryDark = Color(0xFF4CAF50)
+val GreenOnPrimaryDark = Color(0xFFFFFFFF)
 val GreenPrimaryContainerDark = Color(0xFF2E7D32)
 val GreenOnPrimaryContainerDark = Color(0xFFC8E6C9)
 
