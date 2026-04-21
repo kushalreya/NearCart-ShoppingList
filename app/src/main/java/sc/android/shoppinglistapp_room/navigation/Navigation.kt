@@ -1,4 +1,4 @@
-package sc.android.shoppinglistapp_room
+package sc.android.shoppinglistapp_room.navigation
 
 import androidx.compose.ui.Modifier
 
