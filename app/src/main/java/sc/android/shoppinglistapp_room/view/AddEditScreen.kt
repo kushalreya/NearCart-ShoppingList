@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.RemoveCircleOutline
+import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,12 +39,13 @@ fun AddEditScreen(
     onIncrease : () -> Unit,
     onUnitSelect : () -> Unit
 ) {
+
+    val snackBarHostState = remember { SnackbarHostState() }
+
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var menuExpanded by remember { mutableStateOf(false) }
-
-    val snackBarHostState = remember{ SnackbarHostState() }
 
     ShoppingListApp_RoomTheme(darkTheme = isDark) {
 
@@ -60,18 +61,19 @@ fun AddEditScreen(
                     onThemeChange = onThemeChange
                 )
             },
-            snackbarHost = {SwipeableSnackBar(snackBarHostState)}
-            ) {
+            snackbarHost = { SwipeableSnackBar(snackBarHostState) }
+        ) {
             //parent column
             Column(
                 modifier = Modifier
-                    .clickable{focusManager.clearFocus()}
+                    .fillMaxSize()
                     .padding(it)
                     .padding(top = 32.dp)
-                    .fillMaxSize(),
+                    .clickable{ focusManager.clearFocus() },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                //item name text field
+
+                //name field
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -95,7 +97,6 @@ fun AddEditScreen(
 
                 Spacer(Modifier.height(32.dp))
 
-                //item quantity and unit row
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -105,36 +106,36 @@ fun AddEditScreen(
                 ) {
 
                     Box {
-
-                        //item quantity
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
 
+                            //item quantity title
                             Text(
                                 "Item Quantity",
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             )
 
-                            //icon buttons and quantity text field
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
 
-                                //decrease button
+                                //decrease icon button
                                 IconButton(
                                     onClick = { onDecrease() }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.RemoveCircleOutline,
-                                        contentDescription = "decrease"
+                                        imageVector = Icons.Default.RemoveCircle,
+                                        contentDescription = "decrease",
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(30.dp)
                                     )
                                 }
 
-                                //quantity text field
+                                //quantity
                                 OutlinedTextField(
                                     modifier = Modifier
                                         .width(55.dp),
@@ -147,13 +148,15 @@ fun AddEditScreen(
                                     )
                                 )
 
-                                //increase button
+                                //increase icon button
                                 IconButton(
                                     onClick = { onIncrease() }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.AddCircleOutline,
-                                        contentDescription = "decrease"
+                                        imageVector = Icons.Default.AddCircle,
+                                        contentDescription = "decrease",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(30.dp)
                                     )
                                 }
                             }
@@ -162,18 +165,20 @@ fun AddEditScreen(
 
                     Spacer(Modifier.width(16.dp))
 
-                    //item unit
                     Box {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+
+                            //item unit title
                             Text(
                                 "Item Unit",
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             )
 
+                            //dropdown button
                             Button(
                                 onClick = { menuExpanded = true },
                                 modifier = Modifier.width(120.dp).height(50.dp),
@@ -197,7 +202,7 @@ fun AddEditScreen(
                                 )
                             }
 
-                            //dropdown
+                            //dropdown menu
                             DropdownMenu(
                                 expanded = menuExpanded,
                                 onDismissRequest = { menuExpanded = false },
@@ -239,15 +244,17 @@ fun AddEditScreen(
 
                 Spacer(Modifier.height(40.dp))
 
-                //add item button
+                //add-update button
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
                         .height(50.dp),
                     onClick = {
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
+                        //TODO set snackbar, add or update item
+
+                        focusManager.clearFocus()   //clears focus from textbox
+                        keyboardController?.hide()  //hides keyboard
                     },
                     //TODO enable if name, quantity and unit is not empty
                     enabled = true,
