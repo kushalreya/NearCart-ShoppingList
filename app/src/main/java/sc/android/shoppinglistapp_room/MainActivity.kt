@@ -60,8 +60,8 @@ class MainActivity : ComponentActivity() {
                             onThemeChange = { themeMode = it },
                             navController = navController,
                             context = context,
-                            locationUtil,
-                            locationViewModel
+                            locationUtil=locationUtil,
+                            locationViewModel=locationViewModel
                         )
                     }
                 }
