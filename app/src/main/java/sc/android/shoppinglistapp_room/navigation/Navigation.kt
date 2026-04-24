@@ -89,7 +89,8 @@ fun Navigation (
                         navController.navigateUp()
                     },
                     navController = navController,
-                    locationViewModel = locationViewModel
+                    locationViewModel = locationViewModel,
+                    locationUtil=locationUtil
                 )
             } else {
                 //map loading

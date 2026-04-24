@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import sc.android.shoppinglistapp_room.navigation.Screens
 import sc.android.shoppinglistapp_room.util.LocationUtil
@@ -120,7 +119,7 @@ fun LocationPermissionHandler(
         permissionGranted -> {
             LaunchedEffect(Unit) {
                 locationUtil.requestLocationUpdates(locationViewModel)
-                if (locationViewModel.address.value.isEmpty()) {
+                if (locationViewModel.addresses.value.isEmpty()) {
                     navController.navigate(Screens.LocationSelector.route)
                 }
             }

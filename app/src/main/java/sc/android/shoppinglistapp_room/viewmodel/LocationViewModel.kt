@@ -5,47 +5,109 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sc.android.shoppinglistapp_room.BuildConfig
 import sc.android.shoppinglistapp_room.model.GeocodingResult
 import sc.android.shoppinglistapp_room.model.LocationData
+import sc.android.shoppinglistapp_room.model.NearbyPlacesResult
 import sc.android.shoppinglistapp_room.network_call.RetrofitClient
+import kotlin.collections.listOf
 
-class LocationViewModel: ViewModel() {
-    //to store location coordinates
+class LocationViewModel : ViewModel() {
+
+    //to store the location coordinates
     private val _location = mutableStateOf<LocationData?>(null)
-    val location: State<LocationData?> = _location
+    val location : State<LocationData?> = _location
 
-    //to store the formatted address
-    private val _address = mutableStateOf(listOf<GeocodingResult>())
-    val address : State<List<GeocodingResult>> =_address
+    //to store list of formatted addresses
+    private val _addresses = mutableStateOf(listOf<GeocodingResult>())
+    val addresses : State<List<GeocodingResult>> = _addresses
 
-    //to store the last location
+    //to store the last selected location
     private val _lastLocation = mutableStateOf<LocationData?>(null)
     val lastSavedLocation : State<LocationData?> = _lastLocation
 
-    //to update location
-    fun updateLocation(newLocation: LocationData){
-        _location.value=newLocation
+    //to store list of nearby places
+    private val _places = mutableStateOf(listOf<NearbyPlacesResult>())
+    val places : State<List<NearbyPlacesResult>> = _places
+
+
+    //to update the location
+    fun updateLocation(newLocation : LocationData){
+        _location.value = newLocation
     }
 
     //to update the last location fetched with the currently fetched location
-    fun saveManualLocation(selected: LocationData){
-        _lastLocation.value=selected
+    fun saveManualLocation(selected : LocationData){
+        _lastLocation.value = selected
     }
 
-    //to fetch the formatted address from the API by giving it latitude longitude
-    fun fetchAddress(latlng: String){
+    //to fetch the formatted address from the API by giving its lat-long
+    fun fetchAddress(latLng : String){
         viewModelScope.launch {
-            try{
-                val result = RetrofitClient.create().getAddressFromCoordinates(
-                    latlng,
+            try {
+                val result = RetrofitClient.addressCreate().getAddressFromCoordinates(
+                    latLng,
                     BuildConfig.LOCATION_API_KEY
                 )
-                _address.value=result.results
-            }catch(e: Exception){
-                Log.d("res1", "${e.cause} ${e.message}")
+                _addresses.value = result.results
+            } catch (e : Exception) {
+                Log.d("addresses", "${e.cause} ${e.message}")
             }
         }
     }
+
+    //to fetch the nearby places from API using location coordinates
+    fun fetchNearbyPlaces(location: LocationData) {
+
+        viewModelScope.launch {
+            try {
+
+                val allPlaces = mutableListOf<NearbyPlacesResult>()
+                val api = RetrofitClient.nearbyPlacesCreate()
+
+                // Page 1
+                val response1 = api.getNearbyPlaces(
+                    location = "${location.latitude},${location.longitude}",
+                    radius = 5000,
+                    keyword = "grocery OR supermarket OR store OR mall",
+                    key = BuildConfig.LOCATION_API_KEY
+                )
+                allPlaces.addAll(response1.results)
+                Log.d("PLACES", "Page1: ${response1.results.size}")
+
+                // Page 2
+                response1.next_page_token?.let { token1 ->
+                    delay(2000)
+                    val response2 = api.getNearbyPlaces(
+                        pagetoken = token1,
+                        key = BuildConfig.LOCATION_API_KEY
+                    )
+                    allPlaces.addAll(response2.results)
+                    Log.d("PLACES", "Page2: ${response2.results.size}")
+
+                    // Page 3
+                    response2.next_page_token?.let { token2 ->
+                        delay(2000)
+                        val response3 = api.getNearbyPlaces(
+                            pagetoken = token2,
+                            key = BuildConfig.LOCATION_API_KEY
+                        )
+                        allPlaces.addAll(response3.results)
+                        Log.d("PLACES", "Page3: ${response3.results.size}")
+                    }
+                }
+                // remove duplicates
+                val uniquePlaces = allPlaces.distinctBy { it.place_id }
+                // Update ONCE
+                _places.value = uniquePlaces
+                Log.d("PLACES_TOTAL", "Total: ${uniquePlaces.size}")
+
+            } catch (e: Exception) {
+                Log.d("places", "${e.cause} ${e.message}")
+            }
+        }
+    }
+
 }

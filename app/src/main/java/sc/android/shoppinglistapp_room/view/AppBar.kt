@@ -74,7 +74,7 @@ fun AppBar (
     }
 
     //formatted address from lat-long
-    val address = locationViewModel.address.value
+    val address = locationViewModel.addresses.value
         .firstOrNull()
         ?.formatted_address
             ?:"Click to set location"
