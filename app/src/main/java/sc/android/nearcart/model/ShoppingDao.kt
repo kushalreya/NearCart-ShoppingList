@@ -6,23 +6,23 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ShoppingDao {
 
-    // adding item to the table
+    //adding shopping item
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addItem(shoppingItem: ShoppingItem): Long  // returns inserted rowId
+    suspend fun addItem(shoppingItem : ShoppingItem)  : Long
 
-    // update item
     @Update
-    suspend fun updateItem(shoppingItem: ShoppingItem): Int // rows affected
+    suspend fun updateItem(shoppingItem: ShoppingItem) : Int
 
-    // delete item
     @Delete
-    suspend fun deleteItem(shoppingItem: ShoppingItem): Int // rows deleted
+    suspend fun deleteItem(shoppingItem: ShoppingItem) : Int
 
-    // load all items
-    @Query("SELECT * FROM `shopping_table`")
+//    @Query("select * from `shopping_table`")
+//    fun getAllItems() : Flow<List<ShoppingItem>>
+
+    //supports auto-sorting on checked
+    @Query("SELECT * FROM shopping_table ORDER BY is_checked ASC, id DESC")
     fun getAllItems(): Flow<List<ShoppingItem>>
 
-    // get single item by id
-    @Query("SELECT * FROM `shopping_table` WHERE id = :id")
-    fun getItemById(id: Long): Flow<ShoppingItem>
+    @Query("select * from `shopping_table` where id = :id")
+    fun getItemById(id : Long) : Flow<ShoppingItem>
 }
